@@ -6,8 +6,8 @@ import { useNavigate } from 'react-router-dom';
 const Login = () => {
     // estads o variable (hooks de react)
     const [titulo, setTitulo] = useState("LOGIN");
-    const [email, setEmail] = useState("prueba@gmail.com");
-    const [password, setPassword] = useState("prueba1234");
+    const [email, setEmail] = useState("admin@gmail.com");
+    const [password, setPassword] = useState("admin12345");
     
     // habilitamos el hook useNavigate
     const navigate = useNavigate();
@@ -25,7 +25,7 @@ const Login = () => {
             console.log(data);
 
             //obtengo el token para validar credenciales y saber que tipo de usuario es
-            localStorage.setItem("acces_token", data.access_token);
+            localStorage.setItem("access_token", data.access_token);
 
             navigate("/admin/categoria");
         } catch (error) {

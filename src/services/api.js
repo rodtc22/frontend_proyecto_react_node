@@ -17,6 +17,7 @@ const api = axios.create({
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("access_token");
+        console.log("TOKEN OBTENIDO: ", token);
         if (token) {
             config.headers["Authorization"] = "Bearer " + token;
         }
@@ -33,11 +34,12 @@ api.interceptors.response.use(
         return response;
     },
     (error) => {
-        if (error.response.statusCode === 401) {
-            localStorage.removeItem(); // ese token ya no sirve, ya caduco, o intentaron infiltrarse
+        console.log("EL ERROR ES EL SIGUIENTE: ", error);
+        if (error.response.status === 401) {
+            localStorage.removeItem("access_token"); // ese token ya no sirve, ya caduco, o intentaron infiltrarse
             window.location.href = "/login"; // anda al login por que tu token esta mal
         }
-        if (error.response.statusCode === 403) {
+        if (error.response.status === 403) {
 
         }
         return Promise.reject(error);
