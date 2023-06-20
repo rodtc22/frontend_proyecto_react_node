@@ -74,24 +74,25 @@ const Categoria = () => {
             <hr />
 
             <h3>Lista de Categorias</h3>
-            <table border="1">  
-                <thead>
+            <table className="table-auto w-full">  
+                <thead className="">
                     <tr>
-                        <th>ID</th>
-                        <th>NOMBRE</th>
-                        <th>DETALLE</th>
-                        <th>ACCION</th>
+                        <th className="px-6 py-3 text-left font-medium text-gray-500 uppercase">ID</th>
+                        <th className="px-6 py-3 text-left font-medium text-gray-500 uppercase">NOMBRE</th>
+                        <th className="px-6 py-3 text-left font-medium text-gray-500 uppercase">DETALLE</th>
+                        <th className="px-6 py-3 text-left font-medium text-gray-500 uppercase">ACCION</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className=" divide-y divide-gray-200">
                     {categorias.map(cat=> {
                         return (
                             <tr key = {cat.id}>
-                                <td>{cat.id}</td>
-                                <td>{cat.nombre}</td>
-                                <td>{cat.detalle}</td>
-                                <td> 
+                                <td className="px-6 py-3 whitespace-nowrap">{cat.id}</td>
+                                <td className="px-6 py-3 whitespace-nowrap">{cat.nombre}</td>
+                                <td className="px-6 py-3 whitespace-nowrap">{cat.detalle}</td>
+                                <td className="px-6 py-3 whitespace-nowrap"> 
                                     <button onClick={() => editarCat(cat)}> editar </button> 
+                                     | 
                                     <button onClick={() => eliminarCat(cat)}> eliminar </button>
                                 </td>
                             </tr>

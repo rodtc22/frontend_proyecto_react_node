@@ -1,5 +1,9 @@
 import Routes from "./routes"
 
+import './layouts/css/style.css';
+import './layouts/charts/ChartjsConfig'
+
+
 const App = () => {
   return (
     <>
