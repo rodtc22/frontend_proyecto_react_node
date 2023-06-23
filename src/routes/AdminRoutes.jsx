@@ -1,5 +1,6 @@
 import Categoria from "../views/Categoria";
 import AdminLayout from "../layouts/AdminLayout";
+import Producto from "../views/admin/Producto";
 
 const AdminRoutes = {
     path: '/admin',
@@ -8,6 +9,10 @@ const AdminRoutes = {
         {
             path: 'categoria',
             element: <Categoria />
+        },
+        {
+            path: 'producto',
+            element: <Producto />
         }
     ]
 }

@@ -30,7 +30,9 @@ Hay 2 routers
 * BrowserRouter: La url seria     http://localhost:5173/login
 
 ## Conectando al servidor backend
-Nos va a dar error por que front esta en un puerto, back esta en otro puerto, entonces usamos `cors`, por el error de politica de cors, se llama bloqueo de cors, entonces LO INSTALAMOS EN EL BACKEND
+Nos va a dar error por que front esta en un puerto, back esta en otro puerto, entonces usamos `cors`, por el error de politica de cors, se llama bloqueo de cors, entonces LO INSTALAMOS EN EL 
 
+
+BACKEND
 Luego  instalamos `axios` para que podamos hacer las peticiones al backend
 
