@@ -1,32 +1,113 @@
 import { useEffect, useState } from "react";
 import Modal from "../../components/modal";
 import productoService from "../../services/productoService";
+import categoriaService from "../../services/categoriaService";
 
 const Producto = () => {
-  const [columnas, setColumnas] = useState([
-    "nombre",
-    "precio",
-    "stock",
-    "estado",
-    "categoriaId",
-  ]);
+  // const [columnas, setColumnas] = useState([
+  //   "nombre",
+  //   "precio",
+  //   "stock",
+  //   "estado",
+    
+  //   // "categoriaId",
+  // ]);
+  const columnas = [
+    {key: "id", label: "COD"}, // label, significa como quiero que se muestre
+    {key: "nombre", label: "NOMBRE"},
+    {key: "precio", label: "PRECIO"},
+    {key: "stock", label: "CANTIDAD"},
+    {key: "Categorium.nombre", label: "CATEGORIA"},
+  ]
+  const [prod, setProd] = useState({
+    nombre: "",
+    precio: 0,
+    stock: 0,
+    categoriaId: "",
+    descripcion: "",
+  });
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
-  const [productos, setProductos] = useState([]);
+  const [limit, setLimit] = useState(20);
   const [openModal, setOpenModal] = useState(false);
+  const [productos, setProductos] = useState([]);
+  const [categorias, setCategorias] = useState([]);
 
   useEffect(() => {
     // esto se vuelve a ejecutar a menos que cambie algun estado en este caso el hook columnas
     getProductos();
-  }, [columnas]);
+    getCategoria();
+  }, []);
 
   const getProductos = async () => {
     const { data } = await productoService.listar(q, page, limit);
     setProductos(data.rows);
-    console.log("Cantidad", data.count);
-    console.log("Registros", data.rows);
   };
+
+  const getCategoria = async () => {
+    const { data } = await categoriaService.listar(q);
+    setCategorias(data);
+  };
+
+  const funGuardar = async (e) => {
+    e.preventDefault(); // prevenir la recarga
+    try {
+      if (prod.id) {
+        await productoService.modificar(prod.id, prod);
+      } else {
+        await productoService.guardar(prod);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      resetData();
+      getProductos();
+    }
+  };
+
+  const resetData = () => {
+    setProd({
+      nombre: "",
+      precio: 0,
+      stock: 0,
+      categoriaId: "",
+      descripcion: ""
+    });
+
+    setOpenModal(false);
+  };
+
+  const handleChange = (e) => {
+    // se va a encargar de recibir todos los datos del formulario
+    const { name, value } = e.target;
+    console.log("NAME: ", name, " value ", value);
+    setProd((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleShow = (datos) => {
+    setProd(datos);
+    setOpenModal(true);
+  }
+
+  const handleEdit = (datos) => {
+    setProd(datos);
+    setOpenModal(true);
+  }
+
+  const handleErase = async (datos) => {
+    if (confirm("Esta seguro de eliminar este producto?")) {
+      try {
+        await productoService.eliminar(datos.id)
+        getProductos();
+      } catch (error) {
+        alert("Ocurrio un problema al eliminar el producto.");
+      }
+    }
+    resetData();
+  }
 
   return (
     <>
@@ -40,7 +121,7 @@ const Producto = () => {
                   className="py-2 px-4 text-left text-sm font-medium uppercase"
                   key={index}
                 >
-                  {columna}
+                  {columna.label}
                 </th>
               ))}
             </tr>
@@ -50,32 +131,34 @@ const Producto = () => {
               <tr key={producto.id}>
                 {columnas.map((col, pos) => (
                   <td key={pos} className="py-2 px-4 text-gray-500 text-center">
-                    {producto[col]}
+                    {/* {producto[col]} */}
+                    {/* ESTA FUNCION EVAL ES MUY UTIL PARA VOLVER TODO ESO EN UNA VARIABLE */}
+                    {eval('producto.'+col.key)}
                   </td>
                 ))}
-                <td className="py-2 px-4 text-gray-500 text-center">
-                  <button className="py-1 px-2 bg-green-500 text-white hover:bg-green-800 rounded">
+                <td className="py-2 px-4 text-gray-500 text-center flex gap-1 ">
+                  <button className="p-1 bg-green-500 text-white hover:bg-green-800 rounded" onClick={() => handleShow(producto)}>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
-                      stroke-width="1.5"
+                      strokeWidth="1.5"
                       stroke="currentColor"
-                      class="w-6 h-6"
+                      className="w-6 h-6"
                     >
                       <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
                       />
                       <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                       />
                     </svg>
                   </button>
-                  <button className="py-1 px-2 bg-blue-500 text-white hover:bg-blue-800 rounded">
+                  <button className="p-1 bg-blue-500 text-white hover:bg-blue-800 rounded" onClick={() => handleEdit(producto)}>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -91,7 +174,7 @@ const Producto = () => {
                       />
                     </svg>
                   </button>
-                  <button className="py-1 px-2 bg-red-500 text-white hover:bg-red-800 rounded">
+                  <button className="p-1 bg-red-500 text-white hover:bg-red-800 rounded" onClick={() => {handleErase(producto)}}>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -114,15 +197,80 @@ const Producto = () => {
         </table>
       </div>
 
-      <button className="bg-gray-300 py-2 px-4 rounded-full" onClick={() => {setOpenModal(!openModal)}}>Abrir Modal</button>
+      <button
+        className="bg-gray-300 py-2 px-4 rounded-full"
+        onClick={() => {
+          setOpenModal(!openModal);
+        }}
+      >
+        Abrir Modal
+      </button>
 
-      <Modal modalOpen={openModal} setOpenModal={setOpenModal}>
-        <p>
-          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Dicta nisi
-          nulla dignissimos eius quaerat! Neque assumenda facere quia sit sunt
-          suscipit officia quis, tempore, ullam nostrum perferendis amet ea
-          alias.
-        </p>
+      {/* ESTOY ENVIANDO EL HOOK Y PODEMOS VER QUE LLEGARA AL MODEL CON OTRO NOMBRE EN modalOpen */}
+      <Modal modalOpen={openModal} setOpenModal={resetData}>
+        {/* {JSON.stringify(prod)} */}
+        <form
+          onSubmit={(e) => {
+            funGuardar(e);
+          }}
+        >
+          <label>Ingrese Nombre</label>
+          <input
+            type="text"
+            name="nombre"
+            value={prod.nombre}
+            onChange={handleChange}
+            className="border border-gray-300 rounded px-2 py-1 mb-2 w-full"
+          />
+
+          <label>Precio</label>
+          <input
+            type="number"
+            step="0.01"
+            name="precio"
+            value={prod.precio}
+            onChange={handleChange}
+            className="border border-gray-300 rounded px-2 py-1 mb-2 w-full"
+          />
+          <label>Stock</label>
+          <input
+            type="number"
+            name="stock"
+            value={prod.stock}
+            onChange={handleChange}
+            className="border border-gray-300 rounded px-2 py-1 mb-2 w-full"
+          />
+
+          <label>Categoria</label>
+          <select
+            name="categoriaId"
+            onChange={handleChange}
+            required
+            className="border border-gray-300 rounded px-2 py-1 mb-2 w-full"
+          >
+            <option value="-1">Seleccione una opcion</option>
+            {categorias.map((cate) => (
+              <option value={cate.id} key={cate.id} selected={cate.id == prod.categoriaId?true:false}>
+                {cate.nombre}
+              </option>
+            ))}
+          </select>
+
+          <label>Descripcion</label>
+          <textarea
+            name="descripcion" 
+            onChange={handleChange}
+            value={prod.descripcion}
+            className="border border-gray-300 rounded px-2 py-1 mb-2 w-full"
+            rows="3"
+          ></textarea>
+
+          <input
+            type="submit"
+            value="Guardar producto"
+            className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1 mr-2 rounded"
+          />
+        </form>
       </Modal>
     </>
   );

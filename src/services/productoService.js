@@ -12,6 +12,7 @@ const productoService = {
         return api.get(`/producto/${id}`)
     },
     modificar: (id, datos) => {
+        console.log(id, datos)
         return api.put(`/producto/${id}`,datos);
     },
     eliminar: (id) => {

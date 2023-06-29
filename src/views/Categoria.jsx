@@ -107,10 +107,7 @@ const Categoria = () => {
             <th className="px-6 py-3 text-left font-medium text-gray-500 uppercase ring-2 ring-gray-400">
               DETALLE
             </th>
-            <th
-              className="px-6 py-3 text-left font-medium text-gray-500 uppercase ring-2 ring-gray-400"
-              rounded-tr-lg
-            >
+            <th className="px-6 py-3 text-left font-medium text-gray-500 uppercase ring-2 ring-gray-400 rounded-tr-lg">
               ACCION
             </th>
           </tr>
