@@ -9,16 +9,16 @@ const Producto = () => {
   //   "precio",
   //   "stock",
   //   "estado",
-    
+
   //   // "categoriaId",
   // ]);
   const columnas = [
-    {key: "id", label: "COD"}, // label, significa como quiero que se muestre
-    {key: "nombre", label: "NOMBRE"},
-    {key: "precio", label: "PRECIO"},
-    {key: "stock", label: "CANTIDAD"},
-    {key: "Categorium.nombre", label: "CATEGORIA"},
-  ]
+    { key: "id", label: "COD" }, // label, significa como quiero que se muestre
+    { key: "nombre", label: "NOMBRE" },
+    { key: "precio", label: "PRECIO" },
+    { key: "stock", label: "CANTIDAD" },
+    { key: "Categorium.nombre", label: "CATEGORIA" },
+  ];
   const [prod, setProd] = useState({
     nombre: "",
     precio: 0,
@@ -28,10 +28,12 @@ const Producto = () => {
   });
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(20);
+  const [limit, setLimit] = useState(3); // ahora limit maneja cuando items se pueden ver
+  const [total, setTotal] = useState(0);
   const [openModal, setOpenModal] = useState(false);
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
+  //paginacion
 
   useEffect(() => {
     // esto se vuelve a ejecutar a menos que cambie algun estado en este caso el hook columnas
@@ -39,8 +41,10 @@ const Producto = () => {
     getCategoria();
   }, []);
 
-  const getProductos = async () => {
-    const { data } = await productoService.listar(q, page, limit);
+  const getProductos = async (nroPage = 1) => {
+    setPage(nroPage);
+    const { data } = await productoService.listar(q, nroPage, limit);
+    setTotal(data.count);
     setProductos(data.rows);
   };
 
@@ -71,7 +75,7 @@ const Producto = () => {
       precio: 0,
       stock: 0,
       categoriaId: "",
-      descripcion: ""
+      descripcion: "",
     });
 
     setOpenModal(false);
@@ -90,24 +94,24 @@ const Producto = () => {
   const handleShow = (datos) => {
     setProd(datos);
     setOpenModal(true);
-  }
+  };
 
   const handleEdit = (datos) => {
     setProd(datos);
     setOpenModal(true);
-  }
+  };
 
   const handleErase = async (datos) => {
     if (confirm("Esta seguro de eliminar este producto?")) {
       try {
-        await productoService.eliminar(datos.id)
+        await productoService.eliminar(datos.id);
         getProductos();
       } catch (error) {
         alert("Ocurrio un problema al eliminar el producto.");
       }
     }
     resetData();
-  }
+  };
 
   return (
     <>
@@ -133,11 +137,14 @@ const Producto = () => {
                   <td key={pos} className="py-2 px-4 text-gray-500 text-center">
                     {/* {producto[col]} */}
                     {/* ESTA FUNCION EVAL ES MUY UTIL PARA VOLVER TODO ESO EN UNA VARIABLE */}
-                    {eval('producto.'+col.key)}
+                    {eval("producto." + col.key)}
                   </td>
                 ))}
                 <td className="py-2 px-4 text-gray-500 text-center flex gap-1 ">
-                  <button className="p-1 bg-green-500 text-white hover:bg-green-800 rounded" onClick={() => handleShow(producto)}>
+                  <button
+                    className="p-1 bg-green-500 text-white hover:bg-green-800 rounded"
+                    onClick={() => handleShow(producto)}
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -158,7 +165,10 @@ const Producto = () => {
                       />
                     </svg>
                   </button>
-                  <button className="p-1 bg-blue-500 text-white hover:bg-blue-800 rounded" onClick={() => handleEdit(producto)}>
+                  <button
+                    className="p-1 bg-blue-500 text-white hover:bg-blue-800 rounded"
+                    onClick={() => handleEdit(producto)}
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -174,7 +184,12 @@ const Producto = () => {
                       />
                     </svg>
                   </button>
-                  <button className="p-1 bg-red-500 text-white hover:bg-red-800 rounded" onClick={() => {handleErase(producto)}}>
+                  <button
+                    className="p-1 bg-red-500 text-white hover:bg-red-800 rounded"
+                    onClick={() => {
+                      handleErase(producto);
+                    }}
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -195,15 +210,51 @@ const Producto = () => {
             ))}
           </tbody>
         </table>
+        <div className="flex justify-center m-4">
+          <nav className="inline-flex rounded-md shadow">
+            <button
+              onClick={() => getProductos(page - 1)}
+              disabled={page == 1}
+              className="p-1 bg-gray-200 text-gray-500 hover:bg-gray-300  rounded-l-lg "
+            >
+              Anterior
+            </button>
+            {total > limit && (
+              <div className="flex">
+                {Array.from({ length: Math.ceil(total / limit) }).map(
+                  (_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => getProductos(index + 1)}
+                      className={`${
+                        page === index + 1 ? "bg-blue-500" : "bg-gray-200"
+                      } py-1 px-3 focus:outline-none mx-1  text-white rounded-md`}
+                    >
+                      {index + 1}
+                    </button>
+                  )
+                )}
+              </div>
+            )}
+
+            <button
+              onClick={() => getProductos(page + 1)}
+              disabled={page == Math.ceil(total / limit)}
+              className="p-1 bg-gray-200 text-gray-500 hover:bg-gray-300  rounded-r-lg "
+            >
+              Siguiente
+            </button>
+          </nav>
+        </div>
       </div>
 
       <button
-        className="bg-gray-300 py-2 px-4 rounded-full"
+        className="bg-blue-400 text-white py-2 px-3 rounded-full "
         onClick={() => {
           setOpenModal(!openModal);
         }}
       >
-        Abrir Modal
+        Nuevo Producto
       </button>
 
       {/* ESTOY ENVIANDO EL HOOK Y PODEMOS VER QUE LLEGARA AL MODEL CON OTRO NOMBRE EN modalOpen */}
@@ -250,7 +301,11 @@ const Producto = () => {
           >
             <option value="-1">Seleccione una opcion</option>
             {categorias.map((cate) => (
-              <option value={cate.id} key={cate.id} selected={cate.id == prod.categoriaId?true:false}>
+              <option
+                value={cate.id}
+                key={cate.id}
+                selected={cate.id == prod.categoriaId ? true : false}
+              >
                 {cate.nombre}
               </option>
             ))}
@@ -258,7 +313,7 @@ const Producto = () => {
 
           <label>Descripcion</label>
           <textarea
-            name="descripcion" 
+            name="descripcion"
             onChange={handleChange}
             value={prod.descripcion}
             className="border border-gray-300 rounded px-2 py-1 mb-2 w-full"
