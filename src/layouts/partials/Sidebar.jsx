@@ -471,14 +471,14 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
               </SidebarLinkGroup>
 
               {/* Gestion de pedidos */}
-              <SidebarLinkGroup activecondition={pathname.includes("pedidos")}>
+              <SidebarLinkGroup activecondition={pathname.includes("pedido")}>
                 {(handleClick, open) => {
                   return (
                     <React.Fragment>
                       <a
                         href="#0"
                         className={`block text-slate-200 truncate transition duration-150 ${
-                          pathname.includes("pedidos")
+                          pathname.includes("pedido")
                             ? "hover:text-slate-200"
                             : "hover:text-white"
                         }`}
@@ -497,7 +497,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
                             >
                               <path
                                 className={`fill-current ${
-                                  pathname.includes("pedidos")
+                                  pathname.includes("pedido")
                                     ? "text-indigo-300"
                                     : "text-slate-400"
                                 }`}
@@ -505,7 +505,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
                               />
                               <path
                                 className={`fill-current ${
-                                  pathname.includes("pedidos")
+                                  pathname.includes("pedido")
                                     ? "text-indigo-500"
                                     : "text-slate-700"
                                 }`}
@@ -513,7 +513,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
                               />
                               <path
                                 className={`fill-current ${
-                                  pathname.includes("pedidos")
+                                  pathname.includes("pedido")
                                     ? "text-indigo-600"
                                     : "text-slate-600"
                                 }`}
@@ -542,7 +542,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
                           <li className="mb-1 last:mb-0">
                             <NavLink
                               end
-                              to="/admin/lista_pedido"
+                              to="/admin/pedido"
                               className={({ isActive }) =>
                                 "block transition duration-150 truncate " +
                                 (isActive
@@ -558,7 +558,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
                           <li className="mb-1 last:mb-0">
                             <NavLink
                               end
-                              to="/admin/nuevo_pedido"
+                              to="/admin/pedido/nuevo"
                               className={({ isActive }) =>
                                 "block transition duration-150 truncate " +
                                 (isActive

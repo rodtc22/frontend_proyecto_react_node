@@ -15,7 +15,7 @@ const AdminLayout = () => {
 
           <main>
             <div className="px-4 py-4 ">
-              <NavLink
+              {/* <NavLink
                 className={
                   "text-gray-500 bg-gray-200 px-4 py-2 rounded-l-full ring-2 ring-black"
                 }
@@ -30,7 +30,7 @@ const AdminLayout = () => {
                 to="/admin/categoria"
               >
                 CATEGORIA
-              </NavLink>
+              </NavLink> */}
 
               <Outlet />
             </div>

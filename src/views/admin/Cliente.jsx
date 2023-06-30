@@ -10,7 +10,7 @@ const Cliente = () => {
   const [clientes, setClientes] = useState([]);
   const [total, setTotal] = useState(0);
   const [q, setQ] = useState("");
-  const [limit, setLimit] = useState(3);
+  const [limit, setLimit] = useState(4);
   const [page, setPage] = useState(1);
 
   const columnas = [
@@ -26,7 +26,7 @@ const Cliente = () => {
     getClientes();
   }, []);
 
-  const getClientes = async (nroPage = 1, limit = 1) => {
+  const getClientes = async (nroPage = 1) => {
     setPage(nroPage);
     const { data } = await clienteService.listar(q, nroPage, limit);
     setTotal(data.count);
@@ -34,11 +34,11 @@ const Cliente = () => {
   };
 
   const handleShow = (datos) => {
-    setClientes(datos);
+    setCliente(datos);
   };
 
   const handleEdit = (datos) => {
-    setClientes(datos);
+    setCliente(datos);
   };
 
   const handleErase = async (datos) => {
@@ -58,6 +58,7 @@ const Cliente = () => {
         columnas={columnas}
         datos={clientes}
         total={total}
+        limit={limit}
         page={page}
         fetchData={getClientes}
         handleEdit={handleEdit}
