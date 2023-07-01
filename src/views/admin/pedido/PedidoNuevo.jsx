@@ -3,6 +3,7 @@ import TablePagination from "../../../components/TablePagination";
 import clienteService from "../../../services/clienteService";
 import productoService from "../../../services/productoService";
 import Modal from "../../../components/Modal";
+import pedidoService from "../../../services/pedidoService";
 
 const PedidoNuevo = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -31,9 +32,15 @@ const PedidoNuevo = () => {
   const [q, setQ] = useState("");
   const [productos, setProductos] = useState([]);
 
+  //carrito
+  const [carrito, setCarrito] = useState([]);
+
+  //cliente
+  const [buscar, setBuscar] = useState("");
+  const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
+
   useEffect(() => {
     getProductos();
-    
   }, []);
 
   const getProductos = async (nroPage = 1) => {
@@ -48,6 +55,50 @@ const PedidoNuevo = () => {
     setOpenModal(false);
   };
 
+  const funGuardar = async (e) => {
+    e.preventDefault();
+    try {
+      await pedidoService.nuevoCliente(cliente);
+      resetData();
+    } catch (error) {
+      console.log("Existe el error ", error, " al momento de guardar.");
+    }
+  };
+
+  const funBuscarCliente = async (e) => {
+    e.preventDefault();
+
+    console.log(buscar);
+    const { data } = await pedidoService.buscarCliente(buscar);
+    console.log(data);
+    setClienteSeleccionado(data);
+  };
+
+  const funGuardarPedido =  async () => {
+    if (confirm("Esta seguro de guardar el pedido?")) {
+      try {
+        const datos ={
+          clienteId: clienteSeleccionado.id,
+          items: carrito
+        }
+        // console.log(datos);
+        const {data}  = await pedidoService.guardar(datos);
+        if (data.pedido) {
+          //redireccion
+          console.log("todo chevere");
+        }
+      } catch (error) {
+        alert("Ocurrio un error al registrar el pedido");
+      }
+    }
+  }
+
+  const quitarCarrito = (pos) => {
+    const temp = [...carrito];
+    temp.splice(pos, 1);
+    setCarrito(temp);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setCliente((prevState) => ({
@@ -56,24 +107,21 @@ const PedidoNuevo = () => {
     }));
   };
 
-
-  const handleBuyCarrito = () => {
-    console.log(page, total, limit,q, productos);
-  }
-
-  const funGuardar = async (e) => {
-    e.preventDefault();
-    try {
-      await clienteService.guardar(cliente);
-      resetData();
-    } catch (error) {
-      console.log("Existe el error ", error, " al momento de guardar.");
-    }
+  const handleBuyCarrito = (prod) => {
+    console.log(prod);
+    const item = {
+      productoId: prod.id,
+      nombre: prod.nombre,
+      cantidad: 1,
+      precio: prod.precio,
+    };
+    setCarrito([...carrito, item]); // ... une el objeto de la izq, con el de la der
   };
 
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Lista de productos */}
         <div className="bg-white p-4 rounded-lg shadow">
           <h1>Lista de productos</h1>
           <div className="overflow-x-scroll">
@@ -84,12 +132,13 @@ const PedidoNuevo = () => {
               limit={limit}
               page={page}
               fetchData={getProductos}
-              handleBuyCarrito = {handleBuyCarrito}
+              handleBuyCarrito={handleBuyCarrito}
             ></TablePagination>
           </div>
         </div>
         <div className="md:col-span-1 grid gap-4">
-          <div className="bg-white p-4 rounded shadow">
+          {/* Carrito */}
+          <div className="bg-white p-4 rounded shadow overflow-visible overflow-y-scroll">
             <h1>Carrito</h1>
             <table className="w-full divide-y divide-gray-200">
               <thead>
@@ -106,37 +155,85 @@ const PedidoNuevo = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                <tr>
-                  <td className="py-2 px-4 text-sm text-gray-500 ">sd</td>
-                  <td className="py-2 px-4 text-sm text-gray-500 ">sd</td>
-                  <td className="py-2 px-4 text-sm text-gray-500 ">sd</td>
-                </tr>
-                <tr>
-                  <td className="py-2 px-4 text-sm text-gray-500 ">sd</td>
-                  <td className="py-2 px-4 text-sm text-gray-500 ">sd</td>
-                  <td className="py-2 px-4 text-sm text-gray-500 ">sd</td>
-                </tr>
+                {carrito.map((prod, index) => (
+                  <tr key={index}>
+                    <td className="py-2 px-4 text-sm text-gray-500 ">
+                      {prod.nombre}
+                    </td>
+                    <td className="py-2 px-4 text-sm text-gray-500 ">
+                      {prod.cantidad}
+                    </td>
+                    <td className="py-2 px-4 text-sm text-gray-500 ">
+                      {prod.precio}
+                    </td>
+                    <td>
+                      <button
+                        className="bg-red-500 text-white px-2 rounded-lg mt-1"
+                        onClick={() => {
+                          quitarCarrito(index);
+                        }}
+                      >
+                        x
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
-          <div className="bg-white p-4 rounded shadow">
-            <h1>Cliente</h1>
-            <input
-              type="search"
-              name="buscar"
-              className="border border-gray-300 rounded px-2 py-1 mb-2 mr-2"
-            />
-            <button
-              className="bg-blue-400 text-white py-1 px-2 rounded-full "
-              onClick={() => {
-                setOpenModal(!openModal);
-              }}
-            >
-              Nuevo Cliente
-            </button>
+          {/* Buscar cliente */}
+          <div className="bg-white p-4 rounded shadow flex flex-col gap-3">
+            <h1 className="text-lg font-bold ">Nombre de cliente</h1>
+            <form  onSubmit={(e) => funBuscarCliente(e)}>
+              <input
+                type="search"
+                name="buscar"
+                className="border border-gray-300 rounded px-2 py-1 mb-2 mr-2"
+                onChange={(e) => setBuscar(e.target.value)}
+              />
+              <input
+                type="submit"
+                value="Buscar"
+                className="bg-gray-300 py-1 px-3 rounded-md"
+              />
+            </form>
+            <div>
+              <button
+                className="bg-blue-400 text-white py-1 px-2 rounded-full "
+                onClick={() => {
+                  setOpenModal(!openModal);
+                }}
+              >
+                Nuevo Cliente
+              </button>
+            </div>
+            {clienteSeleccionado && (
+              <div className="bg-indigo-800 text-white font-bold rounded-lg border shadow-lg p-6 flex flex-col">
+                <p>
+                  <span className="text-lg font-semibold">CLIENTE: </span>{" "}
+                  {clienteSeleccionado?.nombre_completo}
+                </p>
+                <p>
+                  <span className="text-lg font-semibold">CI/NIT: </span>{" "}
+                  {clienteSeleccionado?.ci_nit}
+                </p>
+                <p>
+                  <span className="text-lg font-semibold">TELEFONO: </span>{" "}
+                  {clienteSeleccionado?.telefono}
+                </p>
+                <p>
+                  <span className="text-lg font-semibold">CORREO: </span>{" "}
+                  {clienteSeleccionado?.correo}
+                </p>
+              </div>
+            )}
           </div>
+          {/* Lista de Pedidos */}
           <div className="bg-white p-4 rounded shadow">
             <h1>Pedido</h1>
+            <button className="bg-blue-500 text-white py-1 px-2 rounded-md" onClick={funGuardarPedido}>
+              Guardar Pedido
+            </button>
           </div>
         </div>
       </div>
